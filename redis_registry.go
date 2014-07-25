@@ -48,7 +48,7 @@ func (r *RedisRegistry) SavePeer(p *Peer, ttl int) error {
 		return err
 	}
 
-	key := fmt.Sprintf("tracker:peer:%s%s", p.ID, p.InfoHash)
+	key := r.getKey(p)
 	if _, err := r.do("SETEX", key, ttl, string(data)); err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (r *RedisRegistry) SavePeer(p *Peer, ttl int) error {
 }
 
 func (r *RedisRegistry) DeletePeer(p *Peer) error {
-	key := fmt.Sprintf("tracker:peer:%s%s", p.ID, p.InfoHash)
+	key := r.getKey(p)
 
 	if _, err := r.do("DEL", key); err != nil {
 		return err
@@ -68,6 +68,10 @@ func (r *RedisRegistry) DeletePeer(p *Peer) error {
 
 func (r *RedisRegistry) Close() error {
 	return r.pool.Close()
+}
+
+func (r *RedisRegistry) getKey(p *Peer) string {
+	return fmt.Sprintf("tracker:peer:%s", p.Hash())
 }
 
 func (r *RedisRegistry) do(cmd string, args ...interface{}) (interface{}, error) {
