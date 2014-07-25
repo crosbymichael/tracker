@@ -10,4 +10,7 @@ type Registry interface {
 
 	// DeletePeer removes the peer form the registry
 	DeletePeer(*Peer) error
+
+	// Close closes any resources used by the registry
+	Close() error
 }

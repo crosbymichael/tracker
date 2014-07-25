@@ -35,7 +35,7 @@ func main() {
 		logger.Level = logrus.Debug
 	}
 
-	s := server.New(interval, minInterval, tracker.NewInMemoryRegistry(), logger)
+	s := server.New(interval, minInterval, tracker.NewRedisRegistry("127.0.0.1:6379", ""), logger)
 
 	if err := http.ListenAndServe(addr, s); err != nil {
 		log.Fatal(err)
