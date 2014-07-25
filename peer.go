@@ -1,6 +1,8 @@
 package tracker
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -18,6 +20,8 @@ type Peer struct {
 	InfoHash  string `json:"info_hash,omitempty"`
 	Key       string `json:"key,omitempty"`
 	BytesLeft int64  `json:"bytes_left,omitempty"`
+
+	computedHash string
 }
 
 // IsSeed returns true if the peer has no more bytes left to receive
@@ -54,4 +58,16 @@ func PeerFromRequest(r *http.Request) (*Peer, error) {
 	}
 
 	return p, nil
+}
+
+// Hash returns a sha1 of the peer ID and InfoHash
+func (p *Peer) Hash() string {
+	if p.computedHash == "" {
+		hash := sha1.New()
+		fmt.Fprint(hash, p.ID, p.InfoHash)
+
+		p.computedHash = hex.EncodeToString(hash.Sum(nil))
+	}
+
+	return p.computedHash
 }

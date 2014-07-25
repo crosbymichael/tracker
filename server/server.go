@@ -52,7 +52,7 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 	switch event := r.URL.Query().Get("event"); event {
 	case "stopped":
 		s.logger.WithFields(logrus.Fields{
-			"id":    peer.ID,
+			"id":    peer.Hash(),
 			"event": event,
 		}).Debug("received peer stop event")
 
@@ -64,7 +64,7 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 		return
 	default:
 		s.logger.WithFields(logrus.Fields{
-			"id":    peer.ID,
+			"id":    peer.Hash(),
 			"event": event,
 		}).Debug("received peer event")
 	}
@@ -100,7 +100,7 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		s.logger.WithField("id", p.ID).Debug("active peer")
+		s.logger.WithField("id", p.Hash()).Debug("active peer")
 
 		active = append(active, p.BTSerialize())
 	}

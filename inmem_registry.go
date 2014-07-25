@@ -1,7 +1,6 @@
 package tracker
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -73,6 +72,10 @@ func (r *InMemRegistry) DeletePeer(p *Peer) error {
 	return nil
 }
 
+func (r *InMemRegistry) Close() error {
+	return nil
+}
+
 func (r *InMemRegistry) getKey(p *Peer) string {
-	return fmt.Sprintf("%s%s", p.ID, p.InfoHash)
+	return p.Hash()
 }

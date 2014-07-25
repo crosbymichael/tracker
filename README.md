@@ -4,10 +4,20 @@ You can use this by import the `server` package that implements `http.Handler` t
 applications or use the binary `bttracker` to create a standalone bittorrent tracker.
 
 
+You have the option to use an in-memory registry for keeping peer data or using a redis server for storing the 
+peer data.  You can always implement your own registry as well.
+
 ### btracker
 
 ```bash
-bttracker -addr 0.0.0.0:80 -interval 120 -min-interval 60
+bttracker -h
+Usage of bttracker:
+    -addr=":9090": address of the tracker
+    -debug=false: enable debug mode for logging
+    -interval=120: interval for when Peers should poll for new peers
+    -min-interval=30: min poll interval for new peers
+    -redis-addr="": address to a redis server for persistent peer data
+    -redis-pass="": password to use to connect to the redis server
 ```
 
 ### License MIT
