@@ -11,6 +11,7 @@ import (
 
 const bencodingFormat = "d8:intervali%de12:min intervali%de8:completei%de10:incompletei%de5:peersl%see"
 
+// Server implements the http.Handler interface to serve traffic for a bittorrent tracker
 type Server struct {
 	interval    int
 	minInterval int
@@ -53,7 +54,7 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 		s.logger.WithFields(logrus.Fields{
 			"id":    peer.ID,
 			"event": event,
-		}).Info("received peer stop event")
+		}).Debug("received peer stop event")
 
 		if err := s.registry.DeletePeer(peer); err != nil {
 			s.logger.WithField("error", err).Error("remove peer from registry")
@@ -65,7 +66,7 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 		s.logger.WithFields(logrus.Fields{
 			"id":    peer.ID,
 			"event": event,
-		}).Info("received peer event")
+		}).Debug("received peer event")
 	}
 
 	if err := s.registry.SavePeer(peer, s.interval); err != nil {
@@ -99,11 +100,12 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		s.logger.WithField("id", p.ID).Debug("active peer")
+
 		active = append(active, p.BTSerialize())
 	}
 
 	data := fmt.Sprintf(bencodingFormat, s.interval, s.minInterval, completed, len(active), strings.Join(active, ""))
-	s.logger.WithField("data", data).Debug("response data")
 
 	if _, err := fmt.Fprint(w, data); err != nil {
 		s.logger.WithField("error", err).Error("write data to response")
