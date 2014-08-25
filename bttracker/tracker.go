@@ -23,7 +23,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&addr, "addr", ":9090", "address of the tracker")
+	flag.StringVar(&addr, "addr", ":80", "address of the tracker")
 	flag.IntVar(&interval, "interval", 120, "interval for when Peers should poll for new peers")
 	flag.IntVar(&minInterval, "min-interval", 30, "min poll interval for new peers")
 	flag.BoolVar(&debug, "debug", false, "enable debug mode for logging")
@@ -40,7 +40,7 @@ func main() {
 	)
 
 	if debug {
-		logger.Level = logrus.Debug
+		logger.Level = logrus.DebugLevel
 	}
 
 	if redisAddr != "" {
