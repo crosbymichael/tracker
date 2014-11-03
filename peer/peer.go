@@ -1,4 +1,4 @@
-package tracker
+package peer
 
 import (
 	"crypto/sha1"

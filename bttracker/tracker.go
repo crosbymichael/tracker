@@ -7,7 +7,9 @@ import (
 	"sync"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/crosbymichael/tracker"
+	"github.com/crosbymichael/tracker/registry"
+	"github.com/crosbymichael/tracker/registry/inmem"
+	"github.com/crosbymichael/tracker/registry/redis"
 	"github.com/crosbymichael/tracker/server"
 )
 
@@ -36,7 +38,7 @@ func init() {
 func main() {
 	var (
 		logger   = logrus.New()
-		registry tracker.Registry
+		registry registry.Registry
 	)
 
 	if debug {
@@ -44,9 +46,9 @@ func main() {
 	}
 
 	if redisAddr != "" {
-		registry = tracker.NewRedisRegistry(redisAddr, redisPass)
+		registry = redis.New(redisAddr, redisPass)
 	} else {
-		registry = tracker.NewInMemoryRegistry()
+		registry = inmem.New()
 	}
 
 	s := server.New(interval, minInterval, registry, logger)

@@ -1,8 +1,11 @@
-package tracker
+package inmem
 
 import (
 	"sync"
 	"time"
+
+	"github.com/crosbymichael/tracker/peer"
+	"github.com/crosbymichael/tracker/registry"
 )
 
 // InMemRegistry implements a registry that stores Peer information in memory
@@ -14,22 +17,22 @@ type InMemRegistry struct {
 }
 
 type peerData struct {
-	p       *Peer
+	p       *peer.Peer
 	expires time.Time
 }
 
 // NewInMemoryRegistry returns a new in memory registry for storing peer information
-func NewInMemoryRegistry() Registry {
+func New() registry.Registry {
 	return &InMemRegistry{
 		peers: make(map[string]*peerData),
 	}
 }
 
-func (r *InMemRegistry) FetchPeers() ([]*Peer, error) {
+func (r *InMemRegistry) FetchPeers() ([]*peer.Peer, error) {
 	r.Lock()
 
 	var (
-		out = []*Peer{}
+		out = []*peer.Peer{}
 		now = time.Now()
 	)
 
@@ -47,7 +50,7 @@ func (r *InMemRegistry) FetchPeers() ([]*Peer, error) {
 	return out, nil
 }
 
-func (r *InMemRegistry) SavePeer(p *Peer, ttl int) error {
+func (r *InMemRegistry) SavePeer(p *peer.Peer, ttl int) error {
 	r.Lock()
 
 	key := r.getKey(p)
@@ -61,7 +64,7 @@ func (r *InMemRegistry) SavePeer(p *Peer, ttl int) error {
 	return nil
 }
 
-func (r *InMemRegistry) DeletePeer(p *Peer) error {
+func (r *InMemRegistry) DeletePeer(p *peer.Peer) error {
 	r.Lock()
 
 	key := r.getKey(p)
@@ -76,6 +79,6 @@ func (r *InMemRegistry) Close() error {
 	return nil
 }
 
-func (r *InMemRegistry) getKey(p *Peer) string {
+func (r *InMemRegistry) getKey(p *peer.Peer) string {
 	return p.Hash()
 }
