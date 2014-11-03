@@ -25,7 +25,7 @@ func TestSerialize(t *testing.T) {
 				Key:       "secret_key",
 				BytesLeft: 10000,
 			},
-			expected: "d2:ip11:10.10.10.104:porti55555ee",
+			expected: "d10:bytes_lefti10000e2:id4:10009:info_hash8:deadbeef2:ip11:10.10.10.103:key10:secret_key4:porti55555ee",
 		},
 	}
 
