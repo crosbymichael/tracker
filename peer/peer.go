@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	//"github.com/vbatts/go-bt/bencode"
 )
 
 // NOTE: this is missing the peer id information
@@ -30,8 +32,8 @@ func (p *Peer) IsSeed() bool {
 }
 
 // BTSerialize returns the peer's information serialized in the the bencoding format
-func (p *Peer) BTSerialize() string {
-	return fmt.Sprintf(peerFormat, len(p.IP), p.IP, p.Port)
+func (p *Peer) BTSerialize() (string, error) {
+	return fmt.Sprintf(peerFormat, len(p.IP), p.IP, p.Port), nil
 }
 
 // PeerFromRequest returns a peer from an http GET request

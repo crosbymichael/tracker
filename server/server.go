@@ -103,7 +103,12 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 
 		s.logger.WithField("id", p.Hash()).Debug("active peer")
 
-		active = append(active, p.BTSerialize())
+		buf, err := p.BTSerialize()
+		if err != nil {
+			s.logger.WithField("error", err).Errorf("serializing failed: %s", err)
+			continue
+		}
+		active = append(active, buf)
 	}
 
 	data := fmt.Sprintf(bencodingFormat, s.interval, s.minInterval, completed, len(active), strings.Join(active, ""))
