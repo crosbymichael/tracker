@@ -1,4 +1,4 @@
-package tracker
+package peer
 
 import (
 	"crypto/sha1"
@@ -7,21 +7,20 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-)
 
-// NOTE: this is missing the peer id information
-const peerFormat = "d2:ip%d:%s4:porti%dee"
+	"github.com/vbatts/go-bt/bencode"
+)
 
 // Peer represents a bittorrent peer
 type Peer struct {
-	ID        string `json:"id,omitempty"`
-	IP        string `json:"ip,omitempty"`
-	Port      int    `json:"port,omitempty"`
-	InfoHash  string `json:"info_hash,omitempty"`
-	Key       string `json:"key,omitempty"`
-	BytesLeft int64  `json:"bytes_left,omitempty"`
+	ID        string `json:"id,omitempty" bencode:"id,omitempty"`
+	IP        string `json:"ip,omitempty" bencode:"ip,omitempty"`
+	Port      int    `json:"port,omitempty" bencode:"port,omitempty"`
+	InfoHash  string `json:"info_hash,omitempty" bencode:"info_hash,omitempty"`
+	Key       string `json:"key,omitempty" bencode:"key,omitempty"`
+	BytesLeft int64  `json:"bytes_left,omitempty" bencode:"bytes_left,omitempty"`
 
-	computedHash string
+	computedHash string `bencode:"-"`
 }
 
 // IsSeed returns true if the peer has no more bytes left to receive
@@ -30,8 +29,9 @@ func (p *Peer) IsSeed() bool {
 }
 
 // BTSerialize returns the peer's information serialized in the the bencoding format
-func (p *Peer) BTSerialize() string {
-	return fmt.Sprintf(peerFormat, len(p.IP), p.IP, p.Port)
+func (p *Peer) BTSerialize() (string, error) {
+	buf, err := bencode.Marshal(*p)
+	return string(buf), err
 }
 
 // PeerFromRequest returns a peer from an http GET request

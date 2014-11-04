@@ -1,9 +1,11 @@
-package tracker
+package redis
 
 import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/crosbymichael/tracker/peer"
+	"github.com/crosbymichael/tracker/registry"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -11,14 +13,14 @@ type RedisRegistry struct {
 	pool *redis.Pool
 }
 
-func NewRedisRegistry(addr, pass string) Registry {
+func New(addr, pass string) registry.Registry {
 	return &RedisRegistry{
 		pool: newPool(addr, pass),
 	}
 }
 
-func (r *RedisRegistry) FetchPeers() ([]*Peer, error) {
-	out := []*Peer{}
+func (r *RedisRegistry) FetchPeers() ([]*peer.Peer, error) {
+	out := []*peer.Peer{}
 
 	keys, err := redis.Strings(r.do("KEYS", "tracker:peer:*"))
 	if err != nil {
@@ -31,7 +33,7 @@ func (r *RedisRegistry) FetchPeers() ([]*Peer, error) {
 			return nil, err
 		}
 
-		var p *Peer
+		var p *peer.Peer
 		if err := json.Unmarshal([]byte(data), &p); err != nil {
 			return nil, err
 		}
@@ -42,7 +44,7 @@ func (r *RedisRegistry) FetchPeers() ([]*Peer, error) {
 	return out, nil
 }
 
-func (r *RedisRegistry) SavePeer(p *Peer, ttl int) error {
+func (r *RedisRegistry) SavePeer(p *peer.Peer, ttl int) error {
 	data, err := json.Marshal(p)
 	if err != nil {
 		return err
@@ -56,7 +58,7 @@ func (r *RedisRegistry) SavePeer(p *Peer, ttl int) error {
 	return nil
 }
 
-func (r *RedisRegistry) DeletePeer(p *Peer) error {
+func (r *RedisRegistry) DeletePeer(p *peer.Peer) error {
 	key := r.getKey(p)
 
 	if _, err := r.do("DEL", key); err != nil {
@@ -70,7 +72,7 @@ func (r *RedisRegistry) Close() error {
 	return r.pool.Close()
 }
 
-func (r *RedisRegistry) getKey(p *Peer) string {
+func (r *RedisRegistry) getKey(p *peer.Peer) string {
 	return fmt.Sprintf("tracker:peer:%s", p.Hash())
 }
 

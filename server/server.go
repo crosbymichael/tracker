@@ -6,7 +6,8 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/crosbymichael/tracker"
+	"github.com/crosbymichael/tracker/peer"
+	"github.com/crosbymichael/tracker/registry"
 )
 
 const bencodingFormat = "d8:intervali%de12:min intervali%de8:completei%de10:incompletei%de5:peersl%see"
@@ -15,14 +16,14 @@ const bencodingFormat = "d8:intervali%de12:min intervali%de8:completei%de10:inco
 type Server struct {
 	interval    int
 	minInterval int
-	registry    tracker.Registry
+	registry    registry.Registry
 	logger      *logrus.Logger
 
 	mux *http.ServeMux
 }
 
 // New returns a new http.Handler for serving bittorrent tracker traffic
-func New(interval, minInterval int, registry tracker.Registry, logger *logrus.Logger) http.Handler {
+func New(interval, minInterval int, registry registry.Registry, logger *logrus.Logger) http.Handler {
 	s := &Server{
 		interval:    interval,
 		minInterval: minInterval,
@@ -41,7 +42,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
-	peer, err := tracker.PeerFromRequest(r)
+	peer, err := peer.PeerFromRequest(r)
 	if err != nil {
 		s.logger.WithField("error", err).Error("parsing peer from request")
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -102,7 +103,12 @@ func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
 
 		s.logger.WithField("id", p.Hash()).Debug("active peer")
 
-		active = append(active, p.BTSerialize())
+		buf, err := p.BTSerialize()
+		if err != nil {
+			s.logger.WithField("error", err).Errorf("serializing failed: %s", err)
+			continue
+		}
+		active = append(active, buf)
 	}
 
 	data := fmt.Sprintf(bencodingFormat, s.interval, s.minInterval, completed, len(active), strings.Join(active, ""))
