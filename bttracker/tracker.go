@@ -14,45 +14,35 @@ import (
 )
 
 var (
-	interval    int
-	minInterval int
-	addr        string
-	redisAddr   string
-	redisPass   string
-	debug       bool
+	flAddr        = flag.String("addr", ":9090", "address of the tracker")
+	flDebug       = flag.Bool("debug", false, "enable debug mode for logging")
+	flInterval    = flag.Int("interval", 120, "interval for when Peers should poll for new peers")
+	flMinInterval = flag.Int("min-interval", 30, "min poll interval for new peers")
+	flRedisAddr   = flag.String("redis-addr", "", "address to a redis server for persistent peer data")
+	flRedisPass   = flag.String("redis-pass", "", "password to use to connect to the redis server")
 
 	mux sync.Mutex
 )
 
-func init() {
-	flag.StringVar(&addr, "addr", ":80", "address of the tracker")
-	flag.IntVar(&interval, "interval", 120, "interval for when Peers should poll for new peers")
-	flag.IntVar(&minInterval, "min-interval", 30, "min poll interval for new peers")
-	flag.BoolVar(&debug, "debug", false, "enable debug mode for logging")
-	flag.StringVar(&redisAddr, "redis-addr", "", "address to a redis server for persistent peer data")
-	flag.StringVar(&redisPass, "redis-pass", "", "password to use to connect to the redis server")
-
-	flag.Parse()
-}
-
 func main() {
+	flag.Parse()
 	var (
 		logger   = logrus.New()
 		registry registry.Registry
 	)
 
-	if debug {
+	if *flDebug {
 		logger.Level = logrus.DebugLevel
 	}
 
-	if redisAddr != "" {
-		registry = redis.New(redisAddr, redisPass)
+	if *flRedisAddr != "" {
+		registry = redis.New(*flRedisAddr, *flRedisPass)
 	} else {
 		registry = inmem.New()
 	}
 
-	s := server.New(interval, minInterval, registry, logger)
-	if err := http.ListenAndServe(addr, s); err != nil {
+	s := server.New(*flInterval, *flMinInterval, registry, logger)
+	if err := http.ListenAndServe(*flAddr, s); err != nil {
 		log.Fatal(err)
 	}
 }
