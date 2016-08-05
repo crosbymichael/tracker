@@ -18,7 +18,7 @@ type Peer struct {
 	Port      int    `json:"port,omitempty" bencode:"port,omitempty"`
 	InfoHash  string `json:"info_hash,omitempty" bencode:"info_hash,omitempty"`
 	Key       string `json:"key,omitempty" bencode:"key,omitempty"`
-	BytesLeft int64  `json:"bytes_left,omitempty" bencode:"bytes_left,omitempty"`
+	BytesLeft uint64 `json:"bytes_left,omitempty" bencode:"bytes_left,omitempty"`
 
 	computedHash string `bencode:"-"`
 }
@@ -43,7 +43,7 @@ func PeerFromRequest(r *http.Request) (*Peer, error) {
 		return nil, err
 	}
 
-	left, err := strconv.Atoi(v.Get("left"))
+	left, err := strconv.ParseUint(v.Get("left"), 10, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func PeerFromRequest(r *http.Request) (*Peer, error) {
 		ID:        v.Get("peer_id"),
 		InfoHash:  v.Get("info_hash"),
 		Key:       v.Get("key"),
-		BytesLeft: int64(left),
+		BytesLeft: left,
 	}
 
 	return p, nil
