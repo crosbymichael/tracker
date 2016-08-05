@@ -42,6 +42,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) tracker(w http.ResponseWriter, r *http.Request) {
+	s.logger.Debugf("url: %q; headers: \"%#v\"", r.URL.String(), r.Header)
 	peer, err := peer.PeerFromRequest(r)
 	if err != nil {
 		s.logger.WithField("error", err).Error("parsing peer from request")
