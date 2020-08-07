@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+
 	"github.com/crosbymichael/tracker/peer"
 	"github.com/crosbymichael/tracker/registry"
 )

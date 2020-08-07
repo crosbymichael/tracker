@@ -6,7 +6,8 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+
 	"github.com/crosbymichael/tracker/registry"
 	"github.com/crosbymichael/tracker/registry/inmem"
 	"github.com/crosbymichael/tracker/registry/redis"
